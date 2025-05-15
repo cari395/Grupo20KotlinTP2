@@ -61,22 +61,21 @@ val Context.dataStore by preferencesDataStore(name = "game_prefs")
 fun PantallaGame(navigationController: NavHostController?) {
 
     val context = LocalContext.current
-    val mejorPuntajeKey = intPreferencesKey("mejorPuntaje")
+    val mayorPuntajeKey = intPreferencesKey("mayorPuntaje")
 
-    // Variables necesarias para la logica
     var numeroSecreto by rememberSaveable { mutableStateOf(Random.nextInt(1, 6)) }
     var intentosFallidos by rememberSaveable { mutableStateOf(0) }
     var puntaje by rememberSaveable { mutableStateOf(0) }
-    var mejorPuntaje by rememberSaveable { mutableStateOf(0) }
+    var mayorPuntaje by rememberSaveable { mutableStateOf(0) }
     var input by remember { mutableStateOf(TextFieldValue("")) }
 
-    // Corutina para manejar la lectura y escritura de DataStore
+    // Escritura y lectura de DataStore
     val scope = rememberCoroutineScope()
 
-    // Leer el mejor puntaje de DataStore
+    // Leer el maximo puntade de DataStore
     LaunchedEffect(Unit) {
         context.dataStore.data.collect { preferences ->
-            mejorPuntaje = preferences[mejorPuntajeKey] ?: 0
+            mayorPuntaje = preferences[mayorPuntajeKey] ?: 0
         }
     }
 
@@ -89,7 +88,7 @@ fun PantallaGame(navigationController: NavHostController?) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        PuntajeTitulo(puntaje, mejorPuntaje)
+        PuntajeTitulo(puntaje, mayorPuntaje)
 
         Spacer(modifier = Modifier.height(38.dp))
 
@@ -148,12 +147,12 @@ fun PantallaGame(navigationController: NavHostController?) {
                             }
                         }
 
-                        // Si el puntaje actual es mayor al mejor puntaje, guardarlo en DataStore
-                        if (puntaje > mejorPuntaje) {
-                            mejorPuntaje = puntaje
+                        // Guarda el puntaje si es maximo
+                        if (puntaje > mayorPuntaje) {
+                            mayorPuntaje = puntaje
                             scope.launch {
                                 context.dataStore.edit { preferences ->
-                                    preferences[mejorPuntajeKey] = mejorPuntaje
+                                    preferences[mayorPuntajeKey] = mayorPuntaje
                                 }
                             }
                         }
@@ -175,14 +174,14 @@ fun PantallaGame(navigationController: NavHostController?) {
 }
 
 @Composable
-fun PuntajeTitulo(puntaje: Int, mejorPuntaje: Int) {
+fun PuntajeTitulo(puntaje: Int, mayorPuntaje: Int) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Text(
             text = "Puntaje actual: $puntaje",
-            fontSize = 35.sp,
+            fontSize = 40.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 24.dp),
             fontWeight = FontWeight.Bold,
@@ -190,8 +189,8 @@ fun PuntajeTitulo(puntaje: Int, mejorPuntaje: Int) {
         )
 
         Text(
-            text = "Mejor puntaje: $mejorPuntaje",
-            fontSize = 30.sp,
+            text = "Mejor puntaje: $mayorPuntaje",
+            fontSize = 35.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 30.dp),
             fontWeight = FontWeight.Bold,
